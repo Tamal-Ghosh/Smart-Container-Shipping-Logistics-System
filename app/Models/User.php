@@ -2,48 +2,59 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    protected $table = 'USERS';
+    protected $primaryKey = 'user_id';
+    public $incrementing = false; // Oracle trigger handles PK
+    public $timestamps = false;
+
     protected $fillable = [
-        'name',
+        'username',
         'email',
-        'password',
+        'password_hash',
+        'role',
+        'is_active',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
-        'password',
-        'remember_token',
+        'password_hash',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    // Laravel auth looks for 'password' attribute — map it to password_hash
+    public function getAuthPassword()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->password_hash;
+    }
+
+    public function customer()
+    {
+        return $this->hasOne(Customer::class, 'user_id', 'user_id');
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'ADMIN';
+    }
+
+    public function isOperator(): bool
+    {
+        return $this->role === 'OPERATOR';
+    }
+
+    public function isCustomer(): bool
+    {
+        return $this->role === 'CUSTOMER';
+    }
+
+    public function isActive(): bool
+    {
+        return $this->is_active === 'Y';
     }
 }
