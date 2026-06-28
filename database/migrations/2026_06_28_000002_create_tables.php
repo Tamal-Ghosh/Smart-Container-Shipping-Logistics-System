@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations to create the tables used so far.
+     * Run the migrations to create the core database tables.
      */
     public function up(): void
     {
@@ -36,9 +36,6 @@ return new class extends Migration
                 $table->string('address', 255)->nullable();
                 $table->string('country', 100)->nullable();
                 $table->timestamp('created_at')->useCurrent();
-
-                // Foreign key constraint (optional in migration since Oracle handles it, but good for visual code reference)
-                // $table->foreign('user_id')->references('user_id')->on('USERS')->onDelete('cascade');
             });
         }
 
