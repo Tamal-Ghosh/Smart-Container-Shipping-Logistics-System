@@ -16,12 +16,11 @@
 
 <div class="dashboard-wrapper">
 
-    <div class="dashboard-header">
-        <h1>⚓ Customer Dashboard</h1>
-        <form method="POST" action="/logout">
-            @csrf
-            <button type="submit" class="btn-logout">Sign Out</button>
-        </form>
+    <div class="dashboard-header" style="margin-bottom: 24px;">
+        <div>
+            <h1 style="font-size: 1.5rem; font-weight: 700; color: var(--accent-primary);">⚓ Customer Dashboard</h1>
+            <p style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 4px;">Track shipments, make payments, and manage your shipping requests.</p>
+        </div>
     </div>
 
     <div class="dashboard-card">

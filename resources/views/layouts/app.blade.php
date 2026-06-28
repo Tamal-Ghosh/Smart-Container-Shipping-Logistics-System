@@ -20,6 +20,24 @@
 </head>
 <body>
 
+    @auth
+        <nav class="main-navbar">
+            <div class="navbar-container">
+                <a href="#" class="navbar-logo">🚢 Smart Shipping</a>
+                <div class="navbar-menu">
+                    <span class="role-badge">{{ Auth::user()->role }} Portal</span>
+                </div>
+                <div class="navbar-user">
+                    <span class="navbar-username">👤 {{ Auth::user()->username }}</span>
+                    <form method="POST" action="/logout" style="margin: 0;">
+                        @csrf
+                        <button type="submit" class="navbar-logout-btn">Sign Out</button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+    @endauth
+
     @yield('content')
 
     {{-- Global Scripts --}}
