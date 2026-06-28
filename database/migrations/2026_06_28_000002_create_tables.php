@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations to create the core database tables.
+     * Run the migrations to create all database tables.
      */
     public function up(): void
     {
@@ -49,7 +49,28 @@ return new class extends Migration
             });
         }
 
-        // 4. SHIPMENT Table
+        // 4. VEHICLE Table
+        if (!Schema::hasTable('VEHICLE')) {
+            Schema::create('VEHICLE', function (Blueprint $table) {
+                $table->integer('vehicle_id')->primary();
+                $table->string('vehicle_number', 50)->unique();
+                $table->string('type', 20); // TRUCK, VESSEL, TRAIN
+                $table->decimal('capacity_kg', 12, 2)->nullable();
+                $table->string('status', 20)->default('AVAILABLE');
+            });
+        }
+
+        // 5. CONTAINER Table
+        if (!Schema::hasTable('CONTAINER')) {
+            Schema::create('CONTAINER', function (Blueprint $table) {
+                $table->integer('container_id')->primary();
+                $table->string('container_number', 50)->unique();
+                $table->string('container_type', 20); // STANDARD, REEFER, OPEN_TOP
+                $table->string('status', 20)->default('AVAILABLE');
+            });
+        }
+
+        // 6. SHIPMENT Table
         if (!Schema::hasTable('SHIPMENT')) {
             Schema::create('SHIPMENT', function (Blueprint $table) {
                 $table->integer('shipment_id')->primary();
@@ -67,6 +88,47 @@ return new class extends Migration
                 $table->timestamp('created_at')->useCurrent();
             });
         }
+
+        // 7. CONTAINER_ASSIGNMENT Table
+        if (!Schema::hasTable('CONTAINER_ASSIGNMENT')) {
+            Schema::create('CONTAINER_ASSIGNMENT', function (Blueprint $table) {
+                $table->integer('assignment_id')->primary();
+                $table->integer('shipment_id');
+                $table->integer('container_id');
+                $table->string('seal_number', 50)->nullable();
+                $table->decimal('loaded_weight_kg', 10, 2)->nullable();
+                $table->timestamp('assigned_at')->useCurrent();
+            });
+        }
+
+        // 8. PAYMENT Table
+        if (!Schema::hasTable('PAYMENT')) {
+            Schema::create('PAYMENT', function (Blueprint $table) {
+                $table->integer('payment_id')->primary();
+                $table->integer('shipment_id');
+                $table->integer('customer_id');
+                $table->decimal('amount', 12, 2);
+                $table->string('payment_method', 30)->nullable();
+                $table->string('payment_status', 20)->default('PENDING');
+                $table->timestamp('payment_date')->nullable();
+                $table->string('transaction_ref', 50)->unique()->nullable();
+                $table->timestamp('due_date')->nullable();
+            });
+        }
+
+        // 9. TRACKING_LOG Table
+        if (!Schema::hasTable('TRACKING_LOG')) {
+            Schema::create('TRACKING_LOG', function (Blueprint $table) {
+                $table->integer('tracking_id')->primary();
+                $table->integer('shipment_id');
+                $table->integer('port_id')->nullable();
+                $table->string('event_type', 30)->nullable();
+                $table->string('location', 100)->nullable();
+                $table->string('status', 30)->nullable();
+                $table->string('remarks', 255)->nullable();
+                $table->timestamp('updated_at')->useCurrent();
+            });
+        }
     }
 
     /**
@@ -74,7 +136,12 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('TRACKING_LOG');
+        Schema::dropIfExists('PAYMENT');
+        Schema::dropIfExists('CONTAINER_ASSIGNMENT');
         Schema::dropIfExists('SHIPMENT');
+        Schema::dropIfExists('CONTAINER');
+        Schema::dropIfExists('VEHICLE');
         Schema::dropIfExists('PORT');
         Schema::dropIfExists('CUSTOMER');
         Schema::dropIfExists('USERS');
