@@ -4,7 +4,6 @@
 
 @section('content')
 
-{{-- Animated Background --}}
 <div class="auth-bg">
     <div class="grid-overlay"></div>
     <div class="particle"></div>

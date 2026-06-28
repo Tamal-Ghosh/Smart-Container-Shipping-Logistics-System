@@ -6,7 +6,6 @@
 
 <div class="dashboard-wrapper">
 
-    {{-- Header --}}
     <div class="dashboard-header" style="margin-bottom: 24px;">
         <div>
             <h1 style="font-size: 1.5rem; font-weight: 700; color: var(--accent-primary);">⚓ Admin Overview</h1>
@@ -14,7 +13,6 @@
         </div>
     </div>
 
-    {{-- Quick Navigation --}}
     <div class="quick-nav">
         <span class="quick-nav-title">Quick Navigation:</span>
         <div class="quick-nav-links">
@@ -26,7 +24,6 @@
         </div>
     </div>
 
-    {{-- Stats Grid --}}
     <div class="stats-grid">
         <div class="stat-card">
             <span class="stat-card-title">Total Shipments</span>
@@ -60,7 +57,6 @@
         </div>
     </div>
 
-    {{-- Recent Shipments Table --}}
     <div class="dashboard-table-card">
         <h2 class="dashboard-table-title">🚢 Recent Shipping Operations</h2>
         

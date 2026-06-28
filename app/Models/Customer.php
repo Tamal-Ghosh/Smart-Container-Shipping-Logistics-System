@@ -8,7 +8,7 @@ class Customer extends Model
 {
     protected $table = 'CUSTOMER';
     protected $primaryKey = 'customer_id';
-    public $incrementing = false; // Oracle trigger handles PK
+    public $incrementing = false;
     public $timestamps = false;
 
     protected $fillable = [

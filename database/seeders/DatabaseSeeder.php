@@ -10,15 +10,11 @@ use App\Models\Customer;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
         DB::beginTransaction();
 
         try {
-            // 1. Admin Account
             $adminEmail = 'admin@shipping.com';
             $adminData = [
                 'username'      => 'admin',
@@ -36,7 +32,6 @@ class DatabaseSeeder extends Seeder
                 $this->command->info("Seeded Admin account: {$adminEmail}");
             }
 
-            // 2. Operator Account
             $operatorEmail = 'operator@shipping.com';
             $operatorData = [
                 'username'      => 'operator',
@@ -54,7 +49,6 @@ class DatabaseSeeder extends Seeder
                 $this->command->info("Seeded Operator account: {$operatorEmail}");
             }
 
-            // 3. Customer Account
             $customerEmail = 'customer@shipping.com';
             $customerData = [
                 'username'      => 'customer',
@@ -72,7 +66,6 @@ class DatabaseSeeder extends Seeder
                 $this->command->info("Seeded Customer account: {$customerEmail}");
             }
 
-            // Make sure the CUSTOMER profile table row exists for customer@shipping.com
             $user = User::where('email', $customerEmail)->first();
             if ($user) {
                 if (!Customer::where('user_id', $user->user_id)->exists()) {

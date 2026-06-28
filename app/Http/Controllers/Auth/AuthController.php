@@ -13,9 +13,6 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    /**
-     * Show the registration form.
-     */
     public function showRegisterForm()
     {
         if (Auth::check()) {
@@ -25,15 +22,11 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
-    /**
-     * Handle a registration request.
-     */
     public function register(RegisterRequest $request)
     {
         DB::beginTransaction();
 
         try {
-            // Insert into USERS table
             DB::table('USERS')->insert([
                 'username'      => $request->username,
                 'email'         => $request->email,
@@ -42,10 +35,8 @@ class AuthController extends Controller
                 'is_active'     => 'Y',
             ]);
 
-            // Retrieve the newly created user (Oracle trigger set the PK)
             $user = User::where('email', $request->email)->first();
 
-            // If CUSTOMER role, also insert into CUSTOMER table
             if ($request->role === 'CUSTOMER') {
                 Customer::create([
                     'user_id'        => $user->user_id,
@@ -72,9 +63,6 @@ class AuthController extends Controller
         }
     }
 
-    /**
-     * Show the login form.
-     */
     public function showLoginForm()
     {
         if (Auth::check()) {
@@ -84,9 +72,6 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    /**
-     * Handle a login request.
-     */
     public function login(Request $request)
     {
         $request->validate([
@@ -108,9 +93,6 @@ class AuthController extends Controller
         return $this->redirectByRole($user);
     }
 
-    /**
-     * Log the user out.
-     */
     public function logout(Request $request)
     {
         Auth::logout();
@@ -120,9 +102,6 @@ class AuthController extends Controller
         return redirect('/login');
     }
 
-    /**
-     * Redirect user to the appropriate dashboard based on their role.
-     */
     private function redirectByRole(User $user)
     {
         return match ($user->role) {

@@ -16,17 +16,8 @@ class DashboardController extends Controller
 
         $stats = DB::table('V_ADMIN_DASHBOARD')->first();
 
-        $recentShipments = DB::table('SHIPMENT')
-            ->join('CUSTOMER', 'SHIPMENT.customer_id', '=', 'CUSTOMER.customer_id')
-            ->join('PORT as src', 'SHIPMENT.source_port_id', '=', 'src.port_id')
-            ->join('PORT as dst', 'SHIPMENT.destination_port_id', '=', 'dst.port_id')
-            ->select(
-                'SHIPMENT.*',
-                'CUSTOMER.company_name',
-                'src.port_name as source_port',
-                'dst.port_name as destination_port'
-            )
-            ->orderBy('SHIPMENT.created_at', 'desc')
+        $recentShipments = DB::table('V_RECENT_SHIPMENTS')
+            ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
 

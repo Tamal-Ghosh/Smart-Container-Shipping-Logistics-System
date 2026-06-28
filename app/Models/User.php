@@ -12,7 +12,7 @@ class User extends Authenticatable
 
     protected $table = 'USERS';
     protected $primaryKey = 'user_id';
-    public $incrementing = false; // Oracle trigger handles PK
+    public $incrementing = false;
     public $timestamps = false;
 
     protected $fillable = [
@@ -27,7 +27,6 @@ class User extends Authenticatable
         'password_hash',
     ];
 
-    // Laravel auth looks for 'password' attribute — map it to password_hash
     public function getAuthPassword()
     {
         return $this->password_hash;
