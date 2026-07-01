@@ -21,12 +21,31 @@
     @auth
         <nav class="main-navbar">
             <div class="navbar-container">
-                <a href="#" class="navbar-logo">🚢 Smart Shipping</a>
-                <div class="navbar-menu">
-                    <span class="role-badge">{{ Auth::user()->role }} Portal</span>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <a href="{{ Auth::user()->role === 'ADMIN' ? '/admin/dashboard' : (Auth::user()->role === 'OPERATOR' ? '/operator/dashboard' : '/customer/dashboard') }}" class="navbar-logo">
+                        Smart Shipping
+                    </a>
                 </div>
+
+                <div class="navbar-links">
+                    @if(Auth::user()->role === 'ADMIN')
+                        <a href="/ports" class="navbar-link {{ request()->is('ports') || request()->is('ports/*') ? 'active' : '' }}">Ports</a>
+                        <a href="/vehicles" class="navbar-link {{ request()->is('vehicles') ? 'active' : '' }}">Vehicles</a>
+                        <a href="/containers" class="navbar-link {{ request()->is('containers') ? 'active' : '' }}">Containers</a>
+                        <a href="/admin/users" class="navbar-link {{ request()->is('admin/users') ? 'active' : '' }}">Users</a>
+                    @elseif(Auth::user()->role === 'OPERATOR')
+                        <a href="/operator/shipments/create" class="navbar-link">New Booking</a>
+                        <a href="/operator/tracking/log" class="navbar-link">Tracking Log</a>
+                    @elseif(Auth::user()->role === 'CUSTOMER')
+                        <a href="/tracking" class="navbar-link">Track Shipment</a>
+                    @endif
+                </div>
+
                 <div class="navbar-user">
-                    <span class="navbar-username">👤 {{ Auth::user()->username }}</span>
+                    <div class="user-avatar">
+                        {{ strtoupper(substr(Auth::user()->username, 0, 1)) }}
+                    </div>
+                    <span class="navbar-username">{{ Auth::user()->username }}</span>
                     <form method="POST" action="/logout" style="margin: 0;">
                         @csrf
                         <button type="submit" class="navbar-logout-btn">Sign Out</button>

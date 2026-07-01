@@ -6,24 +6,6 @@
 
 <div class="dashboard-wrapper">
 
-    <div class="dashboard-header" style="margin-bottom: 24px;">
-        <div>
-            <h1 style="font-size: 1.5rem; font-weight: 700; color: var(--accent-primary);">⚓ Admin Overview</h1>
-            <p style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 4px;">Live tracking, assets availability, and billing statistics.</p>
-        </div>
-    </div>
-
-    <div class="quick-nav">
-        <span class="quick-nav-title">Quick Navigation:</span>
-        <div class="quick-nav-links">
-            <a href="/ports" class="quick-nav-btn">🏢 Ports</a>
-            <a href="/vehicles" class="quick-nav-btn">🚚 Vehicles</a>
-            <a href="/containers" class="quick-nav-btn">📦 Containers</a>
-            <a href="/admin/users" class="quick-nav-btn">👥 Users</a>
-            <a href="/admin/reports" class="quick-nav-btn">📊 Reports</a>
-        </div>
-    </div>
-
     <div class="stats-grid">
         <div class="stat-card">
             <span class="stat-card-title">Total Shipments</span>
@@ -75,7 +57,7 @@
                 <tbody>
                     @forelse($recentShipments as $shipment)
                         <tr>
-                            <td style="font-weight: 600; color: var(--accent-primary);">
+                            <td style="font-weight: 600; color: var(--border-focus);">
                                 {{ $shipment->shipment_ref }}
                             </td>
                             <td>{{ $shipment->company_name }}</td>
