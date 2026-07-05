@@ -10,13 +10,15 @@ return new class extends Migration
         DB::statement("
             CREATE OR REPLACE VIEW V_ADMIN_DASHBOARD AS
             SELECT
-                (SELECT COUNT(*) FROM SHIPMENT)                           AS total_shipments,
-                (SELECT COUNT(*) FROM SHIPMENT WHERE status='IN_TRANSIT') AS active_shipments,
-                (SELECT COUNT(*) FROM SHIPMENT WHERE status='DELIVERED')  AS delivered_shipments,
-                (SELECT COUNT(*) FROM CONTAINER WHERE status='AVAILABLE') AS available_containers,
-                (SELECT COUNT(*) FROM VEHICLE   WHERE status='AVAILABLE') AS available_vehicles,
-                (SELECT COUNT(*) FROM CUSTOMER)                           AS total_customers,
-                (SELECT NVL(SUM(amount),0) FROM PAYMENT WHERE payment_status='COMPLETED') AS total_revenue
+                (SELECT COUNT(*) FROM SHIPMENT)                                     AS total_shipments,
+                (SELECT COUNT(*) FROM SHIPMENT WHERE status='IN_TRANSIT')           AS active_shipments,
+                (SELECT COUNT(*) FROM SHIPMENT WHERE status='DELIVERED')            AS delivered_shipments,
+                (SELECT COUNT(*) FROM SHIPMENT WHERE status='CANCELLED')            AS cancelled_shipments,
+                (SELECT COUNT(*) FROM CONTAINER WHERE status='AVAILABLE')           AS available_containers,
+                (SELECT COUNT(*) FROM VEHICLE   WHERE status='AVAILABLE')           AS available_vehicles,
+                (SELECT COUNT(*) FROM CUSTOMER)                                     AS total_customers,
+                (SELECT NVL(SUM(amount),0) FROM PAYMENT WHERE payment_status='COMPLETED') AS total_revenue,
+                (SELECT NVL(SUM(amount),0) FROM PAYMENT WHERE payment_status='REFUNDED')  AS refunded_amount
             FROM DUAL
         ");
 
@@ -66,6 +68,62 @@ return new class extends Migration
             JOIN PORT p_dst  ON p_dst.port_id  = s.destination_port_id
             LEFT JOIN PAYMENT py ON py.shipment_id = s.shipment_id
         ");
+
+        DB::statement("
+            CREATE OR REPLACE VIEW V_CONTAINER_UTILISATION AS
+            SELECT
+                c.container_id,
+                c.container_number,
+                c.container_type,
+                c.status AS container_status,
+                ca.assignment_id,
+                ca.seal_number,
+                ca.loaded_weight_kg,
+                ca.assigned_at,
+                s.shipment_id,
+                s.shipment_ref,
+                s.status AS shipment_status,
+                cust.company_name AS customer_name
+            FROM CONTAINER c
+            LEFT JOIN CONTAINER_ASSIGNMENT ca ON c.container_id = ca.container_id
+            LEFT JOIN SHIPMENT s ON ca.shipment_id = s.shipment_id
+            LEFT JOIN CUSTOMER cust ON s.customer_id = cust.customer_id
+        ");
+
+        DB::statement("
+            CREATE OR REPLACE VIEW V_LIVE_TRACKING AS
+            SELECT
+                tl.tracking_id,
+                tl.shipment_id,
+                s.shipment_ref,
+                tl.port_id,
+                p.port_name,
+                tl.event_type,
+                tl.location,
+                tl.status AS tracking_status,
+                tl.remarks,
+                tl.updated_at
+            FROM TRACKING_LOG tl
+            JOIN SHIPMENT s ON tl.shipment_id = s.shipment_id
+            LEFT JOIN PORT p ON tl.port_id = p.port_id
+        ");
+
+        DB::statement("
+            CREATE OR REPLACE VIEW V_PAYMENT_REPORT AS
+            SELECT
+                py.payment_id,
+                s.shipment_ref,
+                c.company_name,
+                py.amount,
+                py.payment_method,
+                py.payment_status,
+                py.payment_date,
+                py.transaction_ref,
+                py.due_date
+            FROM PAYMENT py
+            JOIN SHIPMENT s  ON s.shipment_id  = py.shipment_id
+            JOIN CUSTOMER c  ON c.customer_id  = py.customer_id
+        ");
     }
 
     public function down(): void
@@ -80,6 +138,18 @@ return new class extends Migration
 
         try {
             DB::statement("DROP VIEW V_CUSTOMER_DASHBOARD");
+        } catch (\Exception $e) {}
+
+        try {
+            DB::statement("DROP VIEW V_CONTAINER_UTILISATION");
+        } catch (\Exception $e) {}
+
+        try {
+            DB::statement("DROP VIEW V_LIVE_TRACKING");
+        } catch (\Exception $e) {}
+
+        try {
+            DB::statement("DROP VIEW V_PAYMENT_REPORT");
         } catch (\Exception $e) {}
     }
 };

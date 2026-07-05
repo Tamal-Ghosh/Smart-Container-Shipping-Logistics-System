@@ -73,9 +73,13 @@ return new class extends Migration
             CREATE OR REPLACE TRIGGER trg_shipment_pk
             BEFORE INSERT ON SHIPMENT
             FOR EACH ROW
-            WHEN (NEW.SHIPMENT_ID IS NULL)
             BEGIN
-                SELECT SEQ_SHIPMENT.NEXTVAL INTO :NEW.SHIPMENT_ID FROM DUAL;
+                IF :NEW.SHIPMENT_ID IS NULL THEN
+                    SELECT SEQ_SHIPMENT.NEXTVAL INTO :NEW.SHIPMENT_ID FROM DUAL;
+                END IF;
+                IF :NEW.SHIPMENT_REF IS NULL OR :NEW.SHIPMENT_REF = 'PENDING_REF' THEN
+                    :NEW.SHIPMENT_REF := 'SHP-' || TO_CHAR(SYSDATE, 'YYYY') || '-' || LPAD(TO_CHAR(:NEW.SHIPMENT_ID), 5, '0');
+                END IF;
             END;
         ");
 
