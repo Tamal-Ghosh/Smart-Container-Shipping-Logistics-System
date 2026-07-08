@@ -74,131 +74,66 @@ class DatabaseSeeder extends Seeder
                 }
             }
 
-            $customer = Customer::where('email', $customerEmail)->first();
-            $admin = User::where('email', $adminEmail)->first();
+            if (true) { // Always seed ports, vehicles, containers, and default records
+                $customer = Customer::where('email', $customerEmail)->first();
+                $admin = User::where('email', $adminEmail)->first();
 
-            $ports = [
-                ['port_id' => 1, 'port_name' => 'Chittagong Port', 'port_code' => 'CGP', 'location' => 'Chittagong', 'country' => 'Bangladesh', 'status' => 'ACTIVE'],
-                ['port_id' => 2, 'port_name' => 'Port of Felixstowe', 'port_code' => 'FXT', 'location' => 'Suffolk', 'country' => 'United Kingdom', 'status' => 'ACTIVE'],
-                ['port_id' => 3, 'port_name' => 'Port of Singapore', 'port_code' => 'SGP', 'location' => 'Singapore', 'country' => 'Singapore', 'status' => 'ACTIVE']
-            ];
-
-            foreach ($ports as $port) {
-                if (!DB::table('PORT')->where('port_id', $port['port_id'])->exists()) {
-                    DB::table('PORT')->insert($port);
-                }
-            }
-
-            $vehicles = [
-                ['vehicle_id' => 1, 'vehicle_number' => 'TRK-9900', 'type' => 'TRUCK', 'capacity_kg' => 15000, 'status' => 'AVAILABLE'],
-                ['vehicle_id' => 2, 'vehicle_number' => 'VSL-ALPHA', 'type' => 'VESSEL', 'capacity_kg' => 500000, 'status' => 'AVAILABLE'],
-                ['vehicle_id' => 3, 'vehicle_number' => 'VSL-BETA', 'type' => 'VESSEL', 'capacity_kg' => 750000, 'status' => 'IN_TRANSIT']
-            ];
-
-            foreach ($vehicles as $vehicle) {
-                if (!DB::table('VEHICLE')->where('vehicle_id', $vehicle['vehicle_id'])->exists()) {
-                    DB::table('VEHICLE')->insert($vehicle);
-                }
-            }
-
-            $containers = [
-                ['container_id' => 1, 'container_number' => 'CON-5501', 'container_type' => 'STANDARD', 'status' => 'AVAILABLE'],
-                ['container_id' => 2, 'container_number' => 'CON-7702', 'container_type' => 'REEFER', 'status' => 'AVAILABLE'],
-                ['container_id' => 3, 'container_number' => 'CON-8803', 'container_type' => 'STANDARD', 'status' => 'ASSIGNED']
-            ];
-
-            foreach ($containers as $container) {
-                if (!DB::table('CONTAINER')->where('container_id', $container['container_id'])->exists()) {
-                    DB::table('CONTAINER')->insert($container);
-                }
-            }
-
-            if ($customer && $admin) {
-                $shipments = [
-                    [
-                        'shipment_id' => 1,
-                        'customer_id' => $customer->customer_id,
-                        'source_port_id' => 1,
-                        'destination_port_id' => 2,
-                        'vehicle_id' => 1,
-                        'created_by' => $admin->user_id,
-                        'shipment_ref' => 'SHP-2026-00001',
-                        'status' => 'BOOKED',
-                        'shipment_date' => now()->subDays(5),
-                        'expected_delivery_date' => now()->addDays(15),
-                        'actual_delivery_date' => null,
-                        'notes' => 'Handle with care'
-                    ],
-                    [
-                        'shipment_id' => 2,
-                        'customer_id' => $customer->customer_id,
-                        'source_port_id' => 3,
-                        'destination_port_id' => 1,
-                        'vehicle_id' => 3,
-                        'created_by' => $admin->user_id,
-                        'shipment_ref' => 'SHP-2026-00002',
-                        'status' => 'IN_TRANSIT',
-                        'shipment_date' => now()->subDays(2),
-                        'expected_delivery_date' => now()->addDays(10),
-                        'actual_delivery_date' => null,
-                        'notes' => 'Priority shipping'
-                    ]
+                $ports = [
+                    ['port_id' => 1, 'port_name' => 'Chittagong Port',      'port_code' => 'CGP', 'location' => 'Chittagong', 'country' => 'Bangladesh',   'status' => 'ACTIVE'],
+                    ['port_id' => 2, 'port_name' => 'Port of Felixstowe',   'port_code' => 'FXT', 'location' => 'Suffolk',    'country' => 'United Kingdom','status' => 'ACTIVE'],
+                    ['port_id' => 3, 'port_name' => 'Port of Singapore',    'port_code' => 'SGP', 'location' => 'Singapore',  'country' => 'Singapore',    'status' => 'ACTIVE'],
+                    ['port_id' => 4, 'port_name' => 'Port of Shanghai',     'port_code' => 'SHA', 'location' => 'Shanghai',   'country' => 'China',        'status' => 'ACTIVE'],
+                    ['port_id' => 5, 'port_name' => 'Port of Rotterdam',    'port_code' => 'RTM', 'location' => 'Rotterdam',  'country' => 'Netherlands',  'status' => 'ACTIVE'],
                 ];
 
-                foreach ($shipments as $shipment) {
-                    if (!DB::table('SHIPMENT')->where('shipment_id', $shipment['shipment_id'])->exists()) {
-                        DB::table('SHIPMENT')->insert($shipment);
+                foreach ($ports as $port) {
+                    if (!DB::table('PORT')->where('port_id', $port['port_id'])->exists()) {
+                        DB::table('PORT')->insert($port);
                     }
                 }
 
-                $payments = [
-                    [
-                        'payment_id' => 1,
-                        'shipment_id' => 1,
-                        'customer_id' => $customer->customer_id,
-                        'amount' => 4500.00,
-                        'payment_method' => 'BANK_TRANSFER',
-                        'payment_status' => 'COMPLETED',
-                        'payment_date' => now()->subDays(4),
-                        'transaction_ref' => 'TXN-99881122',
-                        'due_date' => now()->addDays(5)
-                    ],
-                    [
-                        'payment_id' => 2,
-                        'shipment_id' => 2,
-                        'customer_id' => $customer->customer_id,
-                        'amount' => 12500.00,
-                        'payment_method' => 'CREDIT_CARD',
-                        'payment_status' => 'PENDING',
-                        'payment_date' => null,
-                        'transaction_ref' => null,
-                        'due_date' => now()->addDays(8)
-                    ]
+                $vehicles = [
+                    ['vehicle_id' => 1, 'vehicle_number' => 'VSL-ALPHA', 'type' => 'VESSEL', 'capacity_kg' => 500000, 'status' => 'AVAILABLE'],
+                    ['vehicle_id' => 2, 'vehicle_number' => 'VSL-BETA',  'type' => 'VESSEL', 'capacity_kg' => 750000, 'status' => 'AVAILABLE'],
+                    ['vehicle_id' => 3, 'vehicle_number' => 'VSL-GAMMA', 'type' => 'VESSEL', 'capacity_kg' => 350000, 'status' => 'AVAILABLE'],
+                    ['vehicle_id' => 4, 'vehicle_number' => 'VSL-DELTA', 'type' => 'VESSEL', 'capacity_kg' => 900000, 'status' => 'AVAILABLE'],
+                    ['vehicle_id' => 5, 'vehicle_number' => 'VSL-OMEGA', 'type' => 'VESSEL', 'capacity_kg' => 120000, 'status' => 'AVAILABLE'],
                 ];
 
-                foreach ($payments as $payment) {
-                    if (!DB::table('PAYMENT')->where('payment_id', $payment['payment_id'])->exists()) {
-                        DB::table('PAYMENT')->insert($payment);
+                foreach ($vehicles as $vehicle) {
+                    if (!DB::table('VEHICLE')->where('vehicle_id', $vehicle['vehicle_id'])->exists()) {
+                        DB::table('VEHICLE')->insert($vehicle);
                     }
                 }
 
-                $logs = [
-                    [
-                        'tracking_id' => 1,
-                        'shipment_id' => 2,
-                        'port_id' => 3,
-                        'event_type' => 'DISPATCHED',
-                        'location' => 'Port of Singapore',
-                        'status' => 'IN_TRANSIT',
-                        'remarks' => 'Vessel departed terminal loading area',
-                        'updated_at' => now()
-                    ]
+                $containers = [
+                    ['container_id' => 1, 'container_number' => 'CON-1001', 'container_type' => 'NORMAL', 'status' => 'AVAILABLE'],
+                    ['container_id' => 2, 'container_number' => 'CON-1002', 'container_type' => 'FREEZE', 'status' => 'AVAILABLE'],
+                    ['container_id' => 3, 'container_number' => 'CON-1003', 'container_type' => 'NORMAL', 'status' => 'AVAILABLE'],
+                    ['container_id' => 4, 'container_number' => 'CON-1004', 'container_type' => 'HAZMAT', 'status' => 'AVAILABLE'],
+                    ['container_id' => 5, 'container_number' => 'CON-1005', 'container_type' => 'FREEZE', 'status' => 'AVAILABLE'],
                 ];
 
-                foreach ($logs as $log) {
-                    if (!DB::table('TRACKING_LOG')->where('tracking_id', $log['tracking_id'])->exists()) {
-                        DB::table('TRACKING_LOG')->insert($log);
+                foreach ($containers as $container) {
+                    if (!DB::table('CONTAINER')->where('container_id', $container['container_id'])->exists()) {
+                        DB::table('CONTAINER')->insert($container);
                     }
+                }
+
+                // Advance sequences to avoid PK conflicts with seeded IDs
+                $maxPortId = DB::table('PORT')->max('port_id') ?? 0;
+                for ($i = 0; $i < $maxPortId; $i++) {
+                    try { DB::select("SELECT SEQ_PORT.NEXTVAL FROM DUAL"); } catch (\Exception $e) {}
+                }
+
+                $maxVehicleId = DB::table('VEHICLE')->max('vehicle_id') ?? 0;
+                for ($i = 0; $i < $maxVehicleId; $i++) {
+                    try { DB::select("SELECT SEQ_VEHICLE.NEXTVAL FROM DUAL"); } catch (\Exception $e) {}
+                }
+
+                $maxContainerId = DB::table('CONTAINER')->max('container_id') ?? 0;
+                for ($i = 0; $i < $maxContainerId; $i++) {
+                    try { DB::select("SELECT SEQ_CONTAINER.NEXTVAL FROM DUAL"); } catch (\Exception $e) {}
                 }
             }
 
