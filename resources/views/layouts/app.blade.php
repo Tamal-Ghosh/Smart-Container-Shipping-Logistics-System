@@ -14,6 +14,17 @@
 
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
 
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'light';
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark-theme');
+            } else {
+                document.documentElement.classList.remove('dark-theme');
+            }
+        })();
+    </script>
+
     @yield('styles')
 </head>
 <body>
@@ -51,6 +62,11 @@
                 </div>
 
                 <div class="navbar-user">
+                    <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme" type="button">
+                        <span class="theme-icon-light">☀️</span>
+                        <span class="theme-icon-dark">🌙</span>
+                    </button>
+
                     <div class="user-avatar">
                         {{ strtoupper(substr(Auth::user()->username, 0, 1)) }}
                     </div>
@@ -63,6 +79,13 @@
             </div>
         </nav>
     @endauth
+
+    @guest
+        <button id="theme-toggle-guest" class="theme-toggle-btn guest-toggle" aria-label="Toggle Theme" type="button">
+            <span class="theme-icon-light">☀️</span>
+            <span class="theme-icon-dark">🌙</span>
+        </button>
+    @endguest
 
     @yield('content')
 
@@ -84,6 +107,15 @@
                 });
                 row.addEventListener('mouseleave', function () {
                     row.style.backgroundColor = '';
+                });
+            });
+
+            // Theme toggle logic
+            const themeToggles = document.querySelectorAll('#theme-toggle, #theme-toggle-guest');
+            themeToggles.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const isDark = document.documentElement.classList.toggle('dark-theme');
+                    localStorage.setItem('theme', isDark ? 'dark' : 'light');
                 });
             });
         });
