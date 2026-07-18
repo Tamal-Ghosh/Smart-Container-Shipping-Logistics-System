@@ -12,7 +12,7 @@
             <span class="stat-card-value">{{ number_format($availableContainers ?? 0) }}</span>
         </div>
         <div class="stat-card">
-            <span class="stat-card-title">Available Vehicles</span>
+            <span class="stat-card-title">Available Vessels/Ships</span>
             <span class="stat-card-value">{{ number_format($availableVehicles ?? 0) }}</span>
         </div>
         <div class="stat-card" style="border-left: 3px solid var(--accent-primary);">
@@ -38,13 +38,16 @@
                             <th>Route</th>
                             <th>Date Booked</th>
                             <th>Status</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($pendingShipments as $shipment)
-                            <tr>
-                                <td style="font-weight: 600; color: var(--border-focus);">
-                                    {{ $shipment->shipment_ref }}
+                            <tr data-href="/operator/shipments/{{ $shipment->shipment_id }}">
+                                <td style="font-weight: 600;">
+                                    <a href="/operator/shipments/{{ $shipment->shipment_id }}" style="color: var(--border-focus); text-decoration: none; font-weight: 700;">
+                                        {{ $shipment->shipment_ref }}
+                                    </a>
                                 </td>
                                 <td>{{ $shipment->company_name }}</td>
                                 <td>{{ $shipment->source_port }} → {{ $shipment->destination_port }}</td>
@@ -56,10 +59,15 @@
                                         {{ $shipment->status }}
                                     </span>
                                 </td>
+                                <td>
+                                    <a href="/operator/shipments/{{ $shipment->shipment_id }}" class="btn-secondary" style="width: auto; padding: 6px 14px; font-size: 0.8rem; border-radius: var(--radius-xs); display: inline-block;">
+                                        View Details
+                                    </a>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" style="text-align: center; padding: 24px; color: var(--text-secondary);">
+                                <td colspan="6" style="text-align: center; padding: 24px; color: var(--text-secondary);">
                                     No pending or booked shipment records found.
                                 </td>
                             </tr>
@@ -83,31 +91,7 @@
                 </div>
             </div>
 
-            <div class="dashboard-table-card" style="padding: 24px;">
-                <h2 class="dashboard-table-title" style="margin-bottom: 16px; font-size: 1rem;">⏳ Today's Event Feed</h2>
-                <div class="timeline-feed" style="max-height: 300px; overflow-y: auto;">
-                    @forelse($todayEvents as $event)
-                        <div class="timeline-item">
-                            <span style="font-size: 0.725rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">
-                                {{ $event->shipment_ref }}
-                            </span>
-                            <h4 style="font-size: 0.875rem; font-weight: 700; color: var(--accent-primary); margin: 2px 0 4px 0;">
-                                {{ $event->event_type ?? $event->status }}
-                            </h4>
-                            <p style="font-size: 0.825rem; color: var(--text-primary); margin: 0 0 2px 0;">
-                                📍 {{ $event->location }}
-                            </p>
-                            <span style="font-size: 0.75rem; color: var(--text-muted);">
-                                {{ \Carbon\Carbon::parse($event->updated_at)->format('h:i A') }}
-                            </span>
-                        </div>
-                    @empty
-                        <p style="font-size: 0.875rem; color: var(--text-secondary); text-align: center; padding: 12px 0; margin: 0;">
-                            No events logged today yet.
-                        </p>
-                    @endforelse
-                </div>
-            </div>
+
 
         </div>
 

@@ -28,27 +28,28 @@
     <div class="dashboard-grid">
         
         <div class="dashboard-table-card">
-            <h2 class="dashboard-table-title">🚢 My Shipments</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                <h2 class="dashboard-table-title" style="margin-bottom: 0;">🚢 My Shipments</h2>
+                <a href="/operator/shipments/create" class="btn-primary" style="width: auto; padding: 8px 16px; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; height: auto;">
+                    + Add Booking
+                </a>
+            </div>
             <div class="table-responsive">
                 <table class="dashboard-table">
                     <thead>
                         <tr>
                             <th>Ref Code</th>
                             <th>Route</th>
-                            <th>Expected Delivery</th>
                             <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($shipments as $shipment)
-                            <tr>
+                            <tr data-href="/operator/shipments/{{ $shipment->shipment_id }}">
                                 <td style="font-weight: 600; color: var(--border-focus);">
                                     {{ $shipment->shipment_ref }}
                                 </td>
                                 <td>{{ $shipment->source_port }} → {{ $shipment->destination_port }}</td>
-                                <td>
-                                    {{ $shipment->expected_delivery_date ? \Carbon\Carbon::parse($shipment->expected_delivery_date)->format('M d, Y') : 'N/A' }}
-                                </td>
                                 <td>
                                     <span class="badge badge-{{ strtolower($shipment->shipment_status) }}">
                                         {{ $shipment->shipment_status }}
@@ -90,7 +91,7 @@
                                 {{ $latestShipment->shipment_ref }}
                             </span>
                             <h3 style="font-size: 1rem; font-weight: 700; color: var(--accent-primary); margin: 2px 0 6px 0;">
-                                {{ $latestTracking->event_type ?? $latestTracking->status }}
+                                {{ $latestTracking->event_type }}
                             </h3>
                             <p style="font-size: 0.875rem; color: var(--text-primary); margin: 0 0 4px 0;">
                                 📍 {{ $latestTracking->location ?? 'Unknown location' }}

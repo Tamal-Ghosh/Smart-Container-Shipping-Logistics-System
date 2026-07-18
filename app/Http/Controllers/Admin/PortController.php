@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Port;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class PortController extends Controller
 {
@@ -17,9 +19,16 @@ class PortController extends Controller
         }
     }
 
+    private function checkAdminOrOperator()
+    {
+        if (!Auth::check() || !in_array(Auth::user()->role, ['ADMIN', 'OPERATOR'])) {
+            abort(403, 'Unauthorized action.');
+        }
+    }
+
     public function index(Request $request)
     {
-        $this->checkAdmin();
+        $this->checkAdminOrOperator();
 
         $query = Port::query();
 
@@ -48,20 +57,34 @@ class PortController extends Controller
     {
         $this->checkAdmin();
 
+        $request->merge([
+            'port_code' => strtoupper(trim($request->port_code)),
+        ]);
+
         $request->validate([
             'port_name' => 'required|string|max:100',
-            'port_code' => 'required|string|max:10|unique:PORT,port_code',
+            'port_code' => ['required', 'string', 'max:10', Rule::unique('PORT', 'port_code')],
             'location'  => 'nullable|string|max:100',
             'country'   => 'nullable|string|max:100',
         ]);
 
-        Port::create([
-            'port_name' => $request->port_name,
-            'port_code' => strtoupper($request->port_code),
-            'location'  => $request->location,
-            'country'   => $request->country,
-            'status'    => 'ACTIVE',
-        ]);
+        try {
+            Port::create([
+                'port_name' => $request->port_name,
+                'port_code' => $request->port_code,
+                'location'  => $request->location,
+                'country'   => $request->country,
+                'status'    => 'ACTIVE',
+            ]);
+        } catch (QueryException $exception) {
+            if ($this->isUniqueConstraintViolation($exception)) {
+                return back()
+                    ->withInput()
+                    ->withErrors(['port_code' => 'This port code already exists.']);
+            }
+
+            throw $exception;
+        }
 
         return redirect()->route('ports.index')->with('success', 'Port created successfully.');
     }
@@ -78,19 +101,33 @@ class PortController extends Controller
         $this->checkAdmin();
         $port = Port::findOrFail($id);
 
+        $request->merge([
+            'port_code' => strtoupper(trim($request->port_code)),
+        ]);
+
         $request->validate([
             'port_name' => 'required|string|max:100',
-            'port_code' => 'required|string|max:10|unique:PORT,port_code,' . $id . ',port_id',
+            'port_code' => ['required', 'string', 'max:10', Rule::unique('PORT', 'port_code')->ignore($id, 'port_id')],
             'location'  => 'nullable|string|max:100',
             'country'   => 'nullable|string|max:100',
         ]);
 
-        $port->update([
-            'port_name' => $request->port_name,
-            'port_code' => strtoupper($request->port_code),
-            'location'  => $request->location,
-            'country'   => $request->country,
-        ]);
+        try {
+            $port->update([
+                'port_name' => $request->port_name,
+                'port_code' => $request->port_code,
+                'location'  => $request->location,
+                'country'   => $request->country,
+            ]);
+        } catch (QueryException $exception) {
+            if ($this->isUniqueConstraintViolation($exception)) {
+                return back()
+                    ->withInput()
+                    ->withErrors(['port_code' => 'This port code already exists.']);
+            }
+
+            throw $exception;
+        }
 
         return redirect()->route('ports.index')->with('success', 'Port updated successfully.');
     }
@@ -103,5 +140,10 @@ class PortController extends Controller
         $port->save();
 
         return redirect()->back()->with('success', 'Port status updated.');
+    }
+
+    private function isUniqueConstraintViolation(QueryException $exception): bool
+    {
+        return str_contains($exception->getMessage(), 'ORA-00001');
     }
 }
