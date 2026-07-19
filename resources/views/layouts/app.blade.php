@@ -21,23 +21,32 @@
     @auth
         <nav class="main-navbar">
             <div class="navbar-container">
-                <div style="display: flex; align-items: center; gap: 16px;">
-                    <a href="{{ Auth::user()->role === 'ADMIN' ? '/admin/dashboard' : (Auth::user()->role === 'OPERATOR' ? '/operator/dashboard' : '/customer/dashboard') }}" class="navbar-logo">
-                        Smart Shipping
-                    </a>
-                </div>
+                <a href="{{ Auth::user()->role === 'ADMIN' ? '/admin/dashboard' : (Auth::user()->role === 'OPERATOR' ? '/operator/dashboard' : '/customer/dashboard') }}" class="navbar-logo">
+                    Smart Shipping
+                </a>
 
                 <div class="navbar-links">
                     @if(Auth::user()->role === 'ADMIN')
+                        <a href="/operator/shipments" class="navbar-link {{ request()->is('operator/shipments') && !request()->is('operator/shipments/create') ? 'active' : '' }}">Shipments</a>
+                        <a href="/operator/shipments/create" class="navbar-link {{ request()->is('operator/shipments/create') ? 'active' : '' }}">New Booking</a>
+                        <a href="/operator/tracking/log" class="navbar-link {{ request()->is('operator/tracking/log') ? 'active' : '' }}">Tracking Log</a>
                         <a href="/ports" class="navbar-link {{ request()->is('ports') || request()->is('ports/*') ? 'active' : '' }}">Ports</a>
-                        <a href="/vehicles" class="navbar-link {{ request()->is('vehicles') ? 'active' : '' }}">Vehicles</a>
+                        <a href="/vehicles" class="navbar-link {{ request()->is('vehicles') ? 'active' : '' }}">Vessels/Ships</a>
                         <a href="/containers" class="navbar-link {{ request()->is('containers') ? 'active' : '' }}">Containers</a>
-                        <a href="/admin/users" class="navbar-link {{ request()->is('admin/users') ? 'active' : '' }}">Users</a>
+                        <a href="/payments" class="navbar-link {{ request()->is('payments') || request()->is('payments/*') ? 'active' : '' }}">Payments</a>
+                        <a href="/admin/users" class="navbar-link {{ request()->is('admin/users') || request()->is('admin/users/*') ? 'active' : '' }}">Users</a>
                     @elseif(Auth::user()->role === 'OPERATOR')
-                        <a href="/operator/shipments/create" class="navbar-link">New Booking</a>
-                        <a href="/operator/tracking/log" class="navbar-link">Tracking Log</a>
+                        <a href="/operator/shipments" class="navbar-link {{ request()->is('operator/shipments') && !request()->is('operator/shipments/create') ? 'active' : '' }}">Shipments</a>
+                        <a href="/operator/shipments/create" class="navbar-link {{ request()->is('operator/shipments/create') ? 'active' : '' }}">New Booking</a>
+                        <a href="/operator/tracking/log" class="navbar-link {{ request()->is('operator/tracking/log') ? 'active' : '' }}">Tracking Log</a>
+                        <a href="/ports" class="navbar-link {{ request()->is('ports') || request()->is('ports/*') ? 'active' : '' }}">Ports</a>
+                        <a href="/vehicles" class="navbar-link {{ request()->is('vehicles') ? 'active' : '' }}">Vessels/Ships</a>
+                        <a href="/containers" class="navbar-link {{ request()->is('containers') ? 'active' : '' }}">Containers</a>
+                        <a href="/payments" class="navbar-link {{ request()->is('payments') || request()->is('payments/*') ? 'active' : '' }}">Payments</a>
                     @elseif(Auth::user()->role === 'CUSTOMER')
-                        <a href="/tracking" class="navbar-link">Track Shipment</a>
+                        <a href="/operator/shipments" class="navbar-link {{ request()->is('operator/shipments') ? 'active' : '' }}">My Shipments</a>
+                        <a href="/tracking" class="navbar-link {{ request()->is('tracking') ? 'active' : '' }}">Track Shipment</a>
+                        <a href="/payments" class="navbar-link {{ request()->is('payments') || request()->is('payments/*') ? 'active' : '' }}">My Payments</a>
                     @endif
                 </div>
 
@@ -58,6 +67,27 @@
     @yield('content')
 
     <script src="{{ asset('js/auth.js') }}"></script>
+
+    <script>
+        /* Global clickable-row handler — add data-href="url" to any <tr> to make it navigable */
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('tr[data-href]').forEach(function (row) {
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', function (e) {
+                    // Ignore clicks that originate from interactive elements
+                    if (e.target.closest('a, button, input, select, textarea, form, label')) return;
+                    window.location.href = row.dataset.href;
+                });
+                row.addEventListener('mouseenter', function () {
+                    row.style.backgroundColor = 'rgba(99, 102, 241, 0.07)';
+                    row.style.transition = 'background-color 0.15s ease';
+                });
+                row.addEventListener('mouseleave', function () {
+                    row.style.backgroundColor = '';
+                });
+            });
+        });
+    </script>
 
     @yield('scripts')
 </body>
